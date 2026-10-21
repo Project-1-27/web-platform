@@ -1,0 +1,9 @@
+{
+    "name": "web-platform",
+    "version": "0.0.1",
+    "type": "module",
+    "scripts": {
+        "dev": "bun --watch src/index.ts",
+        "start": "bun --watch src/index.ts"
+    }
+}

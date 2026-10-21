@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Project 1.27 Online</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="topbar-inner">
+            <div class="topbar-left">
+                <a href="/" class="brand"><img src="/logo.png" alt="Project 1.27 Online"></a>
+                <ul class="topnav">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/register">Register</a></li>
+                    <li><a href="/admin" class="active">Admin</a></li>
+                    <li><a href="https://discord.gg/c2pXTGH3Fm" target="_blank" rel="noopener">Discord</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="subbar">
+        <div class="subbar-inner">
+            <a href="/">Overview</a>
+            <a href="/register">Create Account</a>
+            <a href="/admin" class="active">Manage Players</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Admin Key</h2>
+            <span id="status" class="muted"></span>
+        </div>
+        <div class="card" style="display: flex; gap: 10px; align-items: center;">
+            <input id="adminKey" type="password" placeholder="Enter ADMIN_KEY" style="max-width: 280px;">
+            <button id="loadBtn" class="btn">Load Players</button>
+        </div>
+
+        <div class="section-header">
+            <h2 class="section-title">Players</h2>
+        </div>
+        <div class="card" style="padding: 8px 12px; overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Player</th>
+                        <th>Crew</th>
+                        <th>Bank / Wallet</th>
+                        <th>Rank (RP)</th>
+                        <th>Saves / Stats</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersBody">
+                    <tr>
+                        <td colspan="8" class="muted" style="padding: 16px 12px;">Enter your admin key above to view
+                            players.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="editorSection" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title" id="editorTitle">Edit Player</h2>
+                <div class="actions">
+                    <span id="editorMsg" class="muted" style="margin-right: 10px;"></span>
+                    <button class="btn btn-sm btn-muted" onclick="closeEditor()">Close</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="sub-heading">
+                    <span>Account Info</span>
+                </div>
+                <div class="grid-4">
+                    <div class="form-row">
+                        <label>Email</label>
+                        <input id="ed_email" type="email">
+                    </div>
+                    <div class="form-row">
+                        <label>Username</label>
+                        <input id="ed_nickname" type="text" maxlength="16">
+                    </div>
+                    <div class="form-row">
+                        <label>Crew Tag</label>
+                        <input id="ed_clanTag" type="text" maxlength="4">
+                    </div>
+                    <div class="form-row">
+                        <label>New Password (leave blank to keep)</label>
+                        <input id="ed_password" type="password" placeholder="Unchanged">
+                    </div>
+                </div>
+
+                <div class="sub-heading">
+                    <span>Money &amp; Balances</span>
+                    <div class="actions">
+                        <button type="button" class="btn btn-sm btn-muted" onclick="addBank(1000000)">+$1M Bank</button>
+                        <button type="button" class="btn btn-sm btn-muted" onclick="addBank(10000000)">+$10M
+                            Bank</button>
+                        <button type="button" class="btn btn-sm btn-muted" onclick="setBank(100000000)">Set
+                            $100M</button>
+                        <button type="button" class="btn btn-sm btn-muted" onclick="setBank(0)">Zero Bank</button>
+                    </div>
+                </div>
+                <div class="grid-3">
+                    <div class="form-row">
+                        <label>Bank Balance ($)</label>
+                        <input id="ed_bank" type="number" min="0" step="1000">
+                    </div>
+                    <div class="form-row">
+                        <label>Char 1 Wallet ($)</label>
+                        <input id="ed_wallet0" type="number" min="0" step="1000">
+                    </div>
+                    <div class="form-row">
+                        <label>Char 2 Wallet ($)</label>
+                        <input id="ed_wallet1" type="number" min="0" step="1000">
+                    </div>
+                </div>
+
+                <div class="sub-heading">
+                    <span>Rank &amp; RP</span>
+                    <div class="actions">
+                        <button type="button" class="btn btn-sm btn-muted" onclick="setPresetRank(1)">Rank 1</button>
+                        <button type="button" class="btn btn-sm btn-muted" onclick="setPresetRank(25)">Rank 25</button>
+                        <button type="button" class="btn btn-sm btn-muted" onclick="setPresetRank(100)">Rank
+                            100</button>
+                        <button type="button" class="btn btn-sm btn-muted" onclick="setPresetRank(120)">Rank
+                            120</button>
+                        <button type="button" class="btn btn-sm btn-muted" onclick="setPresetRank(500)">Rank
+                            500</button>
+                    </div>
+                </div>
+                <div class="grid-4">
+                    <div class="form-row">
+                        <label>Char 1 Rank (1-8000)</label>
+                        <input id="ed_rank0" type="number" min="1" max="8000" oninput="syncRankXp(0)">
+                    </div>
+                    <div class="form-row">
+                        <label>Char 1 RP (XP)</label>
+                        <input id="ed_xp0" type="number" min="0">
+                    </div>
+                    <div class="form-row">
+                        <label>Char 2 Rank (1-8000)</label>
+                        <input id="ed_rank1" type="number" min="1" max="8000" oninput="syncRankXp(1)">
+                    </div>
+                    <div class="form-row">
+                        <label>Char 2 RP (XP)</label>
+                        <input id="ed_xp1" type="number" min="0">
+                    </div>
+                </div>
+
+                <div class="sub-heading">
+                    <span>Character Skills (0 - 100)</span>
+                    <div class="actions">
+                        <button type="button" class="btn btn-sm btn-muted" onclick="setAllSkills(100)">Max All Skills
+                            (100)</button>
+                        <button type="button" class="btn btn-sm btn-muted" onclick="setAllSkills(20)">Reset Skills
+                            (20)</button>
+                    </div>
+                </div>
+                <div class="grid-4">
+                    <div class="form-row">
+                        <label>Stamina</label>
+                        <input id="ed_stamina" type="number" min="0" max="100">
+                    </div>
+                    <div class="form-row">
+                        <label>Shooting</label>
+                        <input id="ed_shooting" type="number" min="0" max="100">
+                    </div>
+                    <div class="form-row">
+                        <label>Strength</label>
+                        <input id="ed_strength" type="number" min="0" max="100">
+                    </div>
+                    <div class="form-row">
+                        <label>Stealth</label>
+                        <input id="ed_stealth" type="number" min="0" max="100">
+                    </div>
+                    <div class="form-row">
+                        <label>Flying</label>
+                        <input id="ed_flying" type="number" min="0" max="100">
+                    </div>
+                    <div class="form-row">
+                        <label>Driving</label>
+                        <input id="ed_driving" type="number" min="0" max="100">
+                    </div>
+                    <div class="form-row">
+                        <label>Lung Capacity</label>
+                        <input id="ed_lung" type="number" min="0" max="100">
+                    </div>
+                </div>
+
+                <div class="sub-heading">
+                    <span>Combat &amp; Career Stats</span>
+                </div>
+                <div class="grid-3">
+                    <div class="form-row">
+                        <label>Total Kills</label>
+                        <input id="ed_kills" type="number" min="0">
+                    </div>
+                    <div class="form-row">
+                        <label>Total Deaths</label>
+                        <input id="ed_deaths" type="number" min="0">
+                    </div>
+                    <div class="form-row">
+                        <label>Headshots</label>
+                        <input id="ed_headshots" type="number" min="0">
+                    </div>
+                    <div class="form-row">
+                        <label>Cop Kills</label>
+                        <input id="ed_copKills" type="number" min="0">
+                    </div>
+                    <div class="form-row">
+                        <label>Races Won</label>
+                        <input id="ed_racesWon" type="number" min="0">
+                    </div>
+                    <div class="form-row">
+                        <label>Races Lost</label>
+                        <input id="ed_racesLost" type="number" min="0">
+                    </div>
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <button class="btn" onclick="saveQuickChanges()">Save Player Changes</button>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <div class="section-header">
+                        <h2 class="section-title" id="rawStatsTitle">All Profile Stats</h2>
+                        <button class="btn btn-sm btn-danger" onclick="deleteAllStats()">Reset All Stats</button>
+                    </div>
+                    <div class="card">
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                            <input id="newStatName" type="text" placeholder="Stat name (e.g. MP0_KILLS) or hash">
+                            <select id="newStatType" style="width: 110px;">
+                                <option value="auto">Auto Type</option>
+                                <option value="int32">int32</option>
+                                <option value="int64">int64</option>
+                                <option value="float">float</option>
+                            </select>
+                            <input id="newStatValue" type="number" step="any" placeholder="Value" style="width: 120px;">
+                            <button class="btn btn-sm" onclick="addOrSetStat()">Set</button>
+                        </div>
+                        <input id="statFilter" type="text" placeholder="Filter existing stats..."
+                            oninput="renderRawStats()" style="margin-bottom: 10px;">
+                        <div style="max-height: 320px; overflow-y: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Stat</th>
+                                        <th>Type</th>
+                                        <th>Value</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rawStatsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="section-header">
+                        <h2 class="section-title" id="savesTitle">Cloud Save Files</h2>
+                        <button class="btn btn-sm btn-danger" onclick="deleteAllSaves()">Wipe All Saves</button>
+                    </div>
+                    <div class="card">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>File</th>
+                                    <th>Size</th>
+                                    <th>Updated</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="savesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-inner">
+            <a href="/" class="brand"><img src="/footer-logo.png" alt="Project 1.27 Online"></a>
+            <ul class="footer-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/register">Register</a></li>
+                <li><a href="/admin">Admin</a></li>
+                <li><a href="https://discord.gg/c2pXTGH3Fm" target="_blank" rel="noopener">Discord</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        const keyInput = document.getElementById('adminKey');
+        const statusEl = document.getElementById('status');
+        const tbody = document.getElementById('usersBody');
+
+        let currentUserId = null;
+        let currentRawStats = [];
+
+        const RANK_XP_TABLE = [
+            0, 0, 800, 2100, 3800, 6100, 9500, 12500, 16000, 19800, 24000,
+            28500, 33400, 38700, 44200, 50200, 56400, 63000, 69900, 77100, 84700,
+            92500, 100700, 109200, 118000, 127100, 136500, 146200, 156200, 166500, 177100,
+            188000, 199200, 210700, 222400, 234500, 246800, 259400, 272300, 285500, 299000,
+            312700, 326800, 341000, 355600, 370500, 385600, 401000, 416600, 432600, 448800,
+            465200, 482000, 499000, 516300, 533800, 551600, 569600, 588000, 606500, 625400,
+            644500, 663800, 683400, 703300, 723400, 743800, 764500, 785400, 806500, 827900,
+            849600, 871500, 893600, 916000, 938700, 961600, 984700, 1008100, 1031800, 1055700,
+            1079800, 1104200, 1128800, 1153700, 1178800, 1204200, 1229800, 1255600, 1281700, 1308100,
+            1334600, 1361400, 1388500, 1415800, 1443300, 1471100, 1499100, 1527300, 1555800, 1584350
+        ];
+
+        function rankToXp(rank) {
+            const r = Math.max(1, Math.min(8000, Math.floor(Number(rank) || 1)));
+            if (r < RANK_XP_TABLE.length) return RANK_XP_TABLE[r];
+            return Math.floor(25 * r * r + 23575 * r - 1023150);
+        }
+
+        keyInput.value = sessionStorage.getItem('adminKey') || '';
+
+        function esc(s) {
+            return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function fmtMoney(n) {
+            return '$' + Number(n || 0).toLocaleString();
+        }
+
+        async function api(path, method = 'GET', body = null) {
+            const key = keyInput.value.trim();
+            sessionStorage.setItem('adminKey', key);
+            const res = await fetch(path, {
+                method,
+                headers: {
+                    'x-admin-key': key,
+                    ...(body ? { 'content-type': 'application/json' } : {}),
+                },
+                body: body ? JSON.stringify(body) : null,
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Request failed');
+            return data;
+        }
+
+        async function loadUsers() {
+            statusEl.textContent = 'Loading...';
+            try {
+                const { users } = await api('/api/admin/users');
+                statusEl.textContent = users.length + ' player(s)';
+                tbody.innerHTML = '';
+                for (const u of users) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>#${u.id}</td>
+                        <td>
+                            <strong>${esc(u.nickname)}</strong><br>
+                            <span class="muted" style="font-size:12px;">${esc(u.email)}</span>
+                        </td>
+                        <td>${esc(u.clanTag)}</td>
+                        <td>
+                            <strong>${fmtMoney(u.bank)}</strong><br>
+                            <span class="muted" style="font-size:12px;">Wallet: ${fmtMoney(u.wallet0)}</span>
+                        </td>
+                        <td>
+                            Rank ${u.rank0}<br>
+                            <span class="muted" style="font-size:12px;">${Number(u.xp0).toLocaleString()} RP</span>
+                        </td>
+                        <td class="muted">${u.saveCount} / ${u.statCount}</td>
+                        <td style="color:${u.banned ? '#c93b3b' : '#1f7a39'}; font-weight:600;">${u.banned ? 'Banned' : 'Active'}</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn btn-sm" onclick="openEditor(${u.id})">Edit Player</button>
+                                <button class="btn btn-sm btn-muted" onclick="toggleBan(${u.id}, ${!u.banned})">${u.banned ? 'Unban' : 'Ban'}</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id})">Delete</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            } catch (err) {
+                statusEl.textContent = err.message;
+            }
+        }
+
+        window.openEditor = async (id) => {
+            currentUserId = id;
+            document.getElementById('editorSection').style.display = 'block';
+            document.getElementById('editorMsg').textContent = 'Loading player...';
+            try {
+                const { user, quick, stats, saves } = await api('/api/admin/user/' + id);
+                document.getElementById('editorTitle').textContent = `Edit Player #${user.id} — ${user.nickname}`;
+                document.getElementById('editorMsg').textContent = '';
+
+                document.getElementById('ed_email').value = user.email;
+                document.getElementById('ed_nickname').value = user.nickname;
+                document.getElementById('ed_clanTag').value = user.clanTag;
+                document.getElementById('ed_password').value = '';
+
+                document.getElementById('ed_bank').value = quick.bank;
+                document.getElementById('ed_wallet0').value = quick.wallet0;
+                document.getElementById('ed_wallet1').value = quick.wallet1;
+
+                document.getElementById('ed_rank0').value = quick.rank0;
+                document.getElementById('ed_xp0').value = quick.xp0;
+                document.getElementById('ed_rank1').value = quick.rank1;
+                document.getElementById('ed_xp1').value = quick.xp1;
+
+                document.getElementById('ed_stamina').value = quick.stamina;
+                document.getElementById('ed_shooting').value = quick.shooting;
+                document.getElementById('ed_strength').value = quick.strength;
+                document.getElementById('ed_stealth').value = quick.stealth;
+                document.getElementById('ed_flying').value = quick.flying;
+                document.getElementById('ed_driving').value = quick.driving;
+                document.getElementById('ed_lung').value = quick.lung;
+
+                document.getElementById('ed_kills').value = quick.kills;
+                document.getElementById('ed_deaths').value = quick.deaths;
+                document.getElementById('ed_headshots').value = quick.headshots;
+                document.getElementById('ed_copKills').value = quick.copKills;
+                document.getElementById('ed_racesWon').value = quick.racesWon;
+                document.getElementById('ed_racesLost').value = quick.racesLost;
+
+                currentRawStats = stats;
+                document.getElementById('rawStatsTitle').textContent = `All Profile Stats (${stats.length})`;
+                renderRawStats();
+
+                document.getElementById('savesTitle').textContent = `Cloud Save Files (${saves.length})`;
+                const savesBody = document.getElementById('savesBody');
+                if (saves.length === 0) {
+                    savesBody.innerHTML = '<tr><td colspan="4" class="muted">No cloud save files stored.</td></tr>';
+                } else {
+                    savesBody.innerHTML = saves.map((s) => `
+                        <tr>
+                            <td><strong>${esc(s.fileName)}</strong></td>
+                            <td class="muted">${Number(s.bytes).toLocaleString()} B</td>
+                            <td class="muted">${esc(s.updatedAt)}</td>
+                            <td style="text-align:right;">
+                                <button class="btn btn-sm btn-danger" onclick="deleteSave('${esc(s.fileName)}')">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                document.getElementById('editorMsg').textContent = err.message;
+            }
+        };
+
+        window.closeEditor = () => {
+            currentUserId = null;
+            document.getElementById('editorSection').style.display = 'none';
+        };
+
+        window.renderRawStats = () => {
+            const q = document.getElementById('statFilter').value.trim().toLowerCase();
+            const filtered = q
+                ? currentRawStats.filter((s) => s.statName.toLowerCase().includes(q) || String(s.statId).includes(q))
+                : currentRawStats;
+            const body = document.getElementById('rawStatsBody');
+            if (filtered.length === 0) {
+                body.innerHTML = '<tr><td colspan="4" class="muted">No matching stats.</td></tr>';
+                return;
+            }
+            body.innerHTML = filtered.slice(0, 150).map((s) => `
+                <tr>
+                    <td style="font-family:monospace; font-size:12px;">${esc(s.statName)}</td>
+                    <td class="muted" style="font-size:12px;">${esc(s.typeName)}</td>
+                    <td>
+                        <input type="text" value="${esc(s.value)}" id="rawval_${s.statId}" style="width:110px; padding:4px 6px; font-size:12px;">
+                    </td>
+                    <td style="text-align:right;">
+                        <div class="actions" style="justify-content:flex-end;">
+                            <button class="btn btn-sm" onclick="saveRawStat(${s.statId}, ${s.statType})">Save</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteStat(${s.statId})">&times;</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.syncRankXp = (charIdx) => {
+            const r = document.getElementById('ed_rank' + charIdx).value;
+            document.getElementById('ed_xp' + charIdx).value = rankToXp(r);
+        };
+
+        window.setPresetRank = (rank) => {
+            document.getElementById('ed_rank0').value = rank;
+            document.getElementById('ed_xp0').value = rankToXp(rank);
+        };
+
+        window.addBank = (delta) => {
+            const el = document.getElementById('ed_bank');
+            el.value = Math.max(0, (Number(el.value) || 0) + delta);
+        };
+
+        window.setBank = (val) => {
+            document.getElementById('ed_bank').value = val;
+        };
+
+        window.setAllSkills = (val) => {
+            for (const k of ['stamina', 'shooting', 'strength', 'stealth', 'flying', 'driving', 'lung']) {
+                document.getElementById('ed_' + k).value = val;
+            }
+        };
+
+        window.saveQuickChanges = async () => {
+            if (!currentUserId) return;
+            const msgEl = document.getElementById('editorMsg');
+            msgEl.textContent = 'Saving...';
+            try {
+                await api(`/api/admin/user/${currentUserId}/quick`, 'POST', {
+                    email: document.getElementById('ed_email').value,
+                    nickname: document.getElementById('ed_nickname').value,
+                    clanTag: document.getElementById('ed_clanTag').value,
+                    password: document.getElementById('ed_password').value,
+                    bank: Number(document.getElementById('ed_bank').value),
+                    wallet0: Number(document.getElementById('ed_wallet0').value),
+                    wallet1: Number(document.getElementById('ed_wallet1').value),
+                    rank0: Number(document.getElementById('ed_rank0').value),
+                    xp0: Number(document.getElementById('ed_xp0').value),
+                    rank1: Number(document.getElementById('ed_rank1').value),
+                    xp1: Number(document.getElementById('ed_xp1').value),
+                    stamina: Number(document.getElementById('ed_stamina').value),
+                    shooting: Number(document.getElementById('ed_shooting').value),
+                    strength: Number(document.getElementById('ed_strength').value),
+                    stealth: Number(document.getElementById('ed_stealth').value),
+                    flying: Number(document.getElementById('ed_flying').value),
+                    driving: Number(document.getElementById('ed_driving').value),
+                    lung: Number(document.getElementById('ed_lung').value),
+                    kills: Number(document.getElementById('ed_kills').value),
+                    deaths: Number(document.getElementById('ed_deaths').value),
+                    headshots: Number(document.getElementById('ed_headshots').value),
+                    copKills: Number(document.getElementById('ed_copKills').value),
+                    racesWon: Number(document.getElementById('ed_racesWon').value),
+                    racesLost: Number(document.getElementById('ed_racesLost').value),
+                });
+                await loadUsers();
+                await openEditor(currentUserId);
+                msgEl.textContent = 'Saved player changes.';
+            } catch (err) {
+                msgEl.textContent = err.message;
+            }
+        };
+
+        window.addOrSetStat = async () => {
+            if (!currentUserId) return;
+            const statName = document.getElementById('newStatName').value.trim();
+            const statType = document.getElementById('newStatType').value;
+            const value = document.getElementById('newStatValue').value;
+            if (!statName) return;
+            await api(`/api/admin/user/${currentUserId}/stat`, 'POST', { statName, statType, value });
+            document.getElementById('newStatName').value = '';
+            document.getElementById('newStatValue').value = '';
+            await openEditor(currentUserId);
+            await loadUsers();
+        };
+
+        window.saveRawStat = async (statId, statType) => {
+            if (!currentUserId) return;
+            const value = document.getElementById('rawval_' + statId).value;
+            await api(`/api/admin/user/${currentUserId}/stat`, 'POST', { statId, statType, value });
+            await openEditor(currentUserId);
+            await loadUsers();
+        };
+
+        window.deleteStat = async (statId) => {
+            if (!currentUserId) return;
+            await api(`/api/admin/user/${currentUserId}/delete-stat`, 'POST', { statId });
+            await openEditor(currentUserId);
+            await loadUsers();
+        };
+
+        window.deleteAllStats = async () => {
+            if (!currentUserId || !confirm('Reset all profile stats for player #' + currentUserId + '?')) return;
+            await api(`/api/admin/user/${currentUserId}/delete-stat`, 'POST', { all: true });
+            await openEditor(currentUserId);
+            await loadUsers();
+        };
+
+        window.deleteSave = async (fileName) => {
+            if (!currentUserId || !confirm('Delete save file ' + fileName + '?')) return;
+            await api(`/api/admin/user/${currentUserId}/delete-save`, 'POST', { fileName });
+            await openEditor(currentUserId);
+            await loadUsers();
+        };
+
+        window.deleteAllSaves = async () => {
+            if (!currentUserId || !confirm('Wipe all cloud save files for player #' + currentUserId + '?')) return;
+            await api(`/api/admin/user/${currentUserId}/delete-save`, 'POST', { all: true });
+            await openEditor(currentUserId);
+            await loadUsers();
+        };
+
+        window.toggleBan = async (id, banned) => {
+            await api('/api/admin/ban', 'POST', { id, banned });
+            await loadUsers();
+        };
+
+        window.deleteUser = async (id) => {
+            if (!confirm('Delete player #' + id + ' and all their saves/stats?')) return;
+            await api('/api/admin/delete', 'POST', { id });
+            if (currentUserId === id) closeEditor();
+            await loadUsers();
+        };
+
+        document.getElementById('loadBtn').addEventListener('click', loadUsers);
+        keyInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') loadUsers();
+        });
+        if (keyInput.value) loadUsers();
+    </script>
+</body>
+
+</html>

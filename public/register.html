@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register - Project 1.27 Online</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="topbar-inner">
+            <div class="topbar-left">
+                <a href="/" class="brand"><img src="/logo.png" alt="Project 1.27 Online"></a>
+                <ul class="topnav">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/register" class="active">Register</a></li>
+                    <li><a href="https://discord.gg/c2pXTGH3Fm" target="_blank" rel="noopener">Discord</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="subbar">
+        <div class="subbar-inner">
+            <a href="/">Overview</a>
+            <a href="/register" class="active">Create Account</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="grid-2">
+            <div>
+                <div class="section-header">
+                    <h2 class="section-title">Create Account</h2>
+                </div>
+                <div class="card">
+                    <form id="regForm">
+                        <div class="form-row">
+                            <label for="email">Email (don't use your actual email)</label>
+                            <input id="email" type="email" placeholder="lily@nonbinary.sh" required
+                                autocomplete="email">
+                        </div>
+
+                        <div class="form-row">
+                            <label for="nickname">Username (3-16 chars)</label>
+                            <input id="nickname" type="text" minlength="3" maxlength="16" placeholder="Username"
+                                required>
+                        </div>
+
+                        <div class="form-row">
+                            <label for="clanTag">Crew Tag (max 4 chars)</label>
+                            <input id="clanTag" type="text" maxlength="4" value="DVAU">
+                        </div>
+
+                        <div class="form-row">
+                            <label for="password">Password</label>
+                            <input id="password" type="password" minlength="6" placeholder="Minimum 6 characters"
+                                required autocomplete="new-password">
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="btn">Register</button>
+                        <div id="msg" class="msg"></div>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-header">
+                    <h2 class="section-title">Getting Started</h2>
+                    <a href="https://discord.gg/c2pXTGH3Fm" target="_blank" rel="noopener"
+                        class="btn btn-sm">Discord</a>
+                </div>
+                <div class="card">
+                    <p class="muted">1. Create an account on the left panel.</p>
+                    <hr class="divider">
+                    <p class="muted">2. Get the <strong>Project 1.27 Online Launcher</strong> from Discord (currently
+                        available to private testers) and select your GTA V (1.27) executable.</p>
+                    <hr class="divider">
+                    <p class="muted">3. Sign in with your email and password in the launcher to start the game.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-inner">
+            <a href="/" class="brand"><img src="/footer-logo.png" alt="Project 1.27 Online"></a>
+            <ul class="footer-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/register">Register</a></li>
+                <li><a href="https://discord.gg/c2pXTGH3Fm" target="_blank" rel="noopener">Discord</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        const form = document.getElementById('regForm');
+        const msg = document.getElementById('msg');
+        const btn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            msg.className = 'msg';
+            msg.textContent = 'Creating account...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        nickname: document.getElementById('nickname').value,
+                        clanTag: document.getElementById('clanTag').value,
+                        password: document.getElementById('password').value,
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    msg.className = 'msg err';
+                    msg.textContent = data.error || 'Registration failed.';
+                } else {
+                    msg.className = 'msg ok';
+                    msg.textContent = 'Account created (ID #' + data.user.id + '). You can now sign in on the launcher.';
+                    form.reset();
+                    document.getElementById('clanTag').value = 'DVAU';
+                }
+            } catch {
+                msg.className = 'msg err';
+                msg.textContent = 'Could not connect to server.';
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
